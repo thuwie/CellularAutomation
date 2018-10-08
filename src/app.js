@@ -3,7 +3,7 @@ var Application = PIXI.Application, Container = PIXI.Container, loader = PIXI.lo
 var cellContainer = new PIXI.Container();
 var stableCellsMatrix = [], futureCellsMatrix = [];
 var cellSize = 4;
-var borderSize = 256;
+var borderSize = 128;
 var vectors = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
 var app = new Application({
     width: borderSize,
@@ -29,7 +29,7 @@ function setup() {
     drawObjects();
     calculateNeighbors();
     state = simulate;
-    app.ticker.speed = 0.1;
+    // app.ticker.speed = 0.1;
     app.ticker.add(function (delta) { return actionLoop(delta); });
 }
 function actionLoop(delta) {
@@ -46,7 +46,7 @@ function simulate(delta) {
         }
         else {
             //If it's dead
-            (futureCellObject.neighbors > 2)
+            (futureCellObject.neighbors === 3)
                 ? futureCellObject.status = true
                 : futureCellObject.status = false;
         }
