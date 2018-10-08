@@ -11,8 +11,8 @@ let Application = PIXI.Application,
 
 const cellContainer = new PIXI.Container();
 const cellsMatrix = [];
-const cellSize = 30;
-const borderSize = 90;
+const cellSize = 8;
+const borderSize = 128;
 const vectors = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
 
 let app = new Application({
@@ -25,24 +25,38 @@ let app = new Application({
     }
 );
 
-document.getElementById("display").appendChild(app.view);
+let state;
 
+setup();
 
-for (let i = 0; i < borderSize / cellSize; i++) {
-    cellsMatrix[i] = [];
-    for (let j = 0; j < borderSize / cellSize; j++) {
-        cellsMatrix[i][j] = { status: (Math.random() >= 0.5) };
+function setup() {
+    document.getElementById("display").appendChild(app.view);
+
+    for (let i = 0; i < borderSize / cellSize; i++) {
+        cellsMatrix[i] = [];
+        for (let j = 0; j < borderSize / cellSize; j++) {
+            cellsMatrix[i][j] = { status: (Math.random() >= 0.5) };
+        }
     }
-}
 
-formCellsSequense(cellsMatrix);
-drawObjects();
+    formCellsSequense(cellsMatrix);
+    drawObjects();
 
-cellsMatrix.forEach((cellSubArray, row) => {
-    cellSubArray.forEach((cellValue, column) => {
+    forEachInMatrix(cellsMatrix, (cellObject, row, column) => {
         console.log(`Pos ${row},${column}. C: `, checkCell(cellsMatrix, row, column));
     });
-});
+
+    state = simulate;
+
+    app.ticker.add(delta => actionLoop(delta));
+}
+function actionLoop(delta) {
+    state(delta);
+}
+function simulate(delta) {
+
+}
+
 
 function checkCell(array, x, y) {
     let count = 0;
@@ -75,21 +89,22 @@ function createCell(cell) {
 }
 
 function formCellsSequense(cellsMatrix) {
-    let cellsSequence = [];
-    cellsMatrix.forEach((cellSubArray, row) => {
-        cellSubArray.forEach((cellObject, column) => {
-            formCell(cellObject, row, column);
-            createCell(cellObject);
-
-        });
-    });
-    return cellsSequence;
+    forEachInMatrix(cellsMatrix, (cellObject, row, column) => {
+        formCell(cellObject, row, column);
+        createCell(cellObject);
+    })
 }
 
 function drawObjects() {
-    cellsMatrix.forEach((cellSubArray) => {
-        cellSubArray.forEach((cellObject) => {
-            app.stage.addChild(cellObject.graphics);
+    forEachInMatrix(cellsMatrix, (cellObject)=> {
+        app.stage.addChild(cellObject.graphics);
+    });
+}
+
+function forEachInMatrix(matrix, callback) {
+    matrix.forEach((matrixArray, row) => {
+        matrixArray.forEach((matrixArrayObject, column) => {
+            callback(matrixArrayObject, row, column);
         });
     });
 }
