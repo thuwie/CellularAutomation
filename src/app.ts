@@ -1,7 +1,6 @@
 //Aliases
 let Application = PIXI.Application,
     Container = PIXI.Container,
-    loader = PIXI.loader,
     resources = PIXI.loader.resources,
     TextureCache = PIXI.utils.TextureCache,
     Sprite = PIXI.Sprite,
@@ -9,11 +8,10 @@ let Application = PIXI.Application,
     Rectangle = PIXI.Rectangle;
 
 
-const cellContainer = new PIXI.Container();
 let stableCellsMatrix = [], futureCellsMatrix = [];
 
 const cellSize = 4;
-const borderSize = 128;
+const borderSize = 256;
 const vectors = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
 
 let app = new Application({
@@ -48,7 +46,6 @@ function setup() {
 
     state = simulate;
 
-    // app.ticker.speed = 0.1;
     app.ticker.add(delta => actionLoop(delta));
 }
 function actionLoop(delta) {
