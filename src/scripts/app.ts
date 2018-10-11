@@ -1,4 +1,5 @@
 //Aliases
+import forEachInMatrix from './game';
 let Application = PIXI.Application,
     Container = PIXI.Container,
     resources = PIXI.loader.resources,
@@ -29,6 +30,7 @@ let app = new Application({
 PIXI.loader
     .add("images/dot.png")
     .load(setup);
+
 
 
 function setup() {
@@ -181,14 +183,14 @@ function changeVisibleStatus() {
         cellObject.graphics.visible = cellObject.status;
     })
 }
-
-function forEachInMatrix(matrix, callback) {
-    matrix.forEach((matrixArray, row) => {
-        matrixArray.forEach((matrixArrayObject, column) => {
-            callback(matrixArrayObject, row, column);
-        });
-    });
-}
+//
+// function forEachInMatrix(matrix, callback) {
+//     matrix.forEach((matrixArray, row) => {
+//         matrixArray.forEach((matrixArrayObject, column) => {
+//             callback(matrixArrayObject, row, column);
+//         });
+//     });
+// }
 
 
 

@@ -1,11 +1,15 @@
+"use strict";
+exports.__esModule = true;
 //Aliases
+var game_1 = require("./game");
 var Application = PIXI.Application, Container = PIXI.Container, resources = PIXI.loader.resources, TextureCache = PIXI.utils.TextureCache, Sprite = PIXI.Sprite, Graphics = PIXI.Graphics, Rectangle = PIXI.Rectangle;
 var cellSize = 4;
-var borderSize = 1024;
+var borderSize = 512;
 var resolution = ~~(borderSize / cellSize);
+var vectors = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
 var stableCellsMatrix = new Array(resolution);
 var futureCellsMatrix = new Array(resolution);
-var vectors = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+var state, sim;
 var app = new Application({
     width: borderSize,
     height: borderSize + 50,
@@ -14,7 +18,6 @@ var app = new Application({
     transparent: false,
     resolution: 1
 });
-var state, sim;
 PIXI.loader
     .add("images/dot.png")
     .load(setup);
@@ -54,15 +57,12 @@ function actionLoop(delta) {
     state(delta);
 }
 function onButtonDown() {
-    this.isdown = true;
     state = state === simulate ? stopSim : simulate;
 }
 function stopSim(delta) {
-    // app.ticker.stop();
 }
 function simulate(delta) {
-    // app.ticker.start();
-    forEachInMatrix(stableCellsMatrix, function (stableCellObject, row, column) {
+    game_1["default"](stableCellsMatrix, function (stableCellObject, row, column) {
         var futureCellObject = stableCellObject;
         if (futureCellObject.status) {
             //If it's alive
@@ -79,12 +79,11 @@ function simulate(delta) {
         futureCellsMatrix[row][column] = futureCellObject;
     });
     stableCellsMatrix = futureCellsMatrix;
-    // formCellsSequense();
     changeVisibleStatus();
     calculateNeighbors();
 }
 function calculateNeighbors() {
-    forEachInMatrix(stableCellsMatrix, function (cellObject, row, column) {
+    game_1["default"](stableCellsMatrix, function (cellObject, row, column) {
         cellObject.neighbors = checkCell(stableCellsMatrix, row, column);
     });
 }
@@ -130,15 +129,6 @@ function formCell(cell, row, column) {
     cell.y = row * cellSize;
     return cell;
 }
-// function createCell(cell) {
-//     let rect = new Graphics();
-//     rect.beginFill(cell.status ? 0x000000 : 0xffffff);
-//     rect.drawRect(cell.x, cell.y, cellSize, cellSize);
-//     rect.endFill();
-//
-//     cell.graphics = rect;
-//     return cell;
-// }
 function createCell(cell) {
     var dotSprite = new Sprite(resources["images/dot.png"].texture);
     dotSprite.scale.set(cellSize, cellSize);
@@ -148,25 +138,26 @@ function createCell(cell) {
     return cell;
 }
 function formCellsSequense() {
-    forEachInMatrix(stableCellsMatrix, function (cellObject, row, column) {
+    game_1["default"](stableCellsMatrix, function (cellObject, row, column) {
         formCell(cellObject, row, column);
         createCell(cellObject);
     });
 }
 function initializeGraphic() {
-    forEachInMatrix(stableCellsMatrix, function (cellObject) {
+    game_1["default"](stableCellsMatrix, function (cellObject) {
         sim.addChild(cellObject.graphics);
     });
 }
 function changeVisibleStatus() {
-    forEachInMatrix(stableCellsMatrix, function (cellObject) {
+    game_1["default"](stableCellsMatrix, function (cellObject) {
         cellObject.graphics.visible = cellObject.status;
     });
 }
-function forEachInMatrix(matrix, callback) {
-    matrix.forEach(function (matrixArray, row) {
-        matrixArray.forEach(function (matrixArrayObject, column) {
-            callback(matrixArrayObject, row, column);
-        });
-    });
-}
+//
+// function forEachInMatrix(matrix, callback) {
+//     matrix.forEach((matrixArray, row) => {
+//         matrixArray.forEach((matrixArrayObject, column) => {
+//             callback(matrixArrayObject, row, column);
+//         });
+//     });
+// }

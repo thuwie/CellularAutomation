@@ -4,11 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc src/app.ts"
+    "build": "tsc src/scripts/app.ts && webpack -p"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/pixi.js": "^4.5.3"
+  },
+  "devDependencies": {
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2"
   }
 }
