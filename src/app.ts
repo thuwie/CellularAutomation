@@ -9,28 +9,27 @@ let Application = PIXI.Application,
 
 
 const cellSize = 4;
-const borderSize = 1024;
+const borderSize = 512;
 const resolution = ~~(borderSize / cellSize);
+const vectors = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
 let stableCellsMatrix = new Array(resolution);
 let futureCellsMatrix = new Array(resolution);
-
-
-
-const vectors = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+let state, sim;
 
 let app = new Application({
         width: borderSize,
-        height: borderSize+50,
+        height: borderSize + 50,
         antialias: true,
         backgroundColor: 0xFFFFFF,
         transparent: false,
         resolution: 1
     }
 );
-let state,sim;
+
 PIXI.loader
     .add("images/dot.png")
     .load(setup);
+
 
 function setup() {
     sim = new Container();
@@ -57,8 +56,8 @@ function setup() {
         stableCellsMatrix[i] = [];
         futureCellsMatrix[i] = [];
         for (let j = 0; j < borderSize / cellSize; j++) {
-            stableCellsMatrix[i][j] = {status: (Math.random() >= 0.5), neighbors: 0};
-            futureCellsMatrix[i][j] = {neighbors: 0};
+            stableCellsMatrix[i][j] = { status: (Math.random() >= 0.5), neighbors: 0 };
+            futureCellsMatrix[i][j] = { neighbors: 0 };
         }
     }
 
@@ -76,16 +75,13 @@ function actionLoop(delta) {
 }
 
 function onButtonDown() {
-    this.isdown = true;
     state = state === simulate ? stopSim : simulate;
 }
 
 function stopSim(delta) {
-    // app.ticker.stop();
 }
 
 function simulate(delta) {
-    // app.ticker.start();
     forEachInMatrix(stableCellsMatrix, (stableCellObject, row, column) => {
         let futureCellObject = stableCellObject;
         if (futureCellObject.status) {
@@ -104,7 +100,6 @@ function simulate(delta) {
 
     stableCellsMatrix = futureCellsMatrix;
 
-    // formCellsSequense();
     changeVisibleStatus();
     calculateNeighbors();
 }
@@ -159,20 +154,10 @@ function formCell(cell, row, column) {
     return cell;
 }
 
-// function createCell(cell) {
-//     let rect = new Graphics();
-//     rect.beginFill(cell.status ? 0x000000 : 0xffffff);
-//     rect.drawRect(cell.x, cell.y, cellSize, cellSize);
-//     rect.endFill();
-//
-//     cell.graphics = rect;
-//     return cell;
-// }
-
 function createCell(cell) {
     const dotSprite = new Sprite(resources["images/dot.png"].texture);
-    dotSprite.scale.set(cellSize,cellSize);
-    dotSprite.position.set(cell.x,cell.y);
+    dotSprite.scale.set(cellSize, cellSize);
+    dotSprite.position.set(cell.x, cell.y);
     dotSprite.visible = cell.status;
     cell.graphics = dotSprite;
     return cell;
