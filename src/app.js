@@ -1,24 +1,25 @@
 //Aliases
 var Application = PIXI.Application, Container = PIXI.Container, resources = PIXI.loader.resources, TextureCache = PIXI.utils.TextureCache, Sprite = PIXI.Sprite, Graphics = PIXI.Graphics, Rectangle = PIXI.Rectangle;
 var cellSize = 4;
-var borderSize = 256;
+var borderSize = 1024;
 var resolution = ~~(borderSize / cellSize);
 var stableCellsMatrix = new Array(resolution);
 var futureCellsMatrix = new Array(resolution);
-// let futureCellsMatrix = new Array(resolution);
 var vectors = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
 var app = new Application({
     width: borderSize,
     height: borderSize + 50,
-    antialias: false,
+    antialias: true,
     backgroundColor: 0xFFFFFF,
     transparent: false,
     resolution: 1
 });
-var state;
-var sim = new Container();
-setup();
+var state, sim;
+PIXI.loader
+    .add("images/dot.png")
+    .load(setup);
 function setup() {
+    sim = new Container();
     document.getElementById("display").appendChild(app.view);
     var button = new Graphics();
     button.beginFill(0xFF0000);
@@ -43,10 +44,10 @@ function setup() {
         }
     }
     formCellsSequense();
-    drawObjects();
+    initializeGraphic();
     calculateNeighbors();
     state = stopSim;
-    // app.ticker.minFPS = 10;
+    app.ticker.speed = 0.1;
     app.ticker.add(function (delta) { return actionLoop(delta); });
 }
 function actionLoop(delta) {
@@ -54,8 +55,6 @@ function actionLoop(delta) {
 }
 function onButtonDown() {
     this.isdown = true;
-    console.log('xyp9x');
-    console.log(state);
     state = state === simulate ? stopSim : simulate;
 }
 function stopSim(delta) {
@@ -80,8 +79,8 @@ function simulate(delta) {
         futureCellsMatrix[row][column] = futureCellObject;
     });
     stableCellsMatrix = futureCellsMatrix;
-    formCellsSequense();
-    drawObjects();
+    // formCellsSequense();
+    changeVisibleStatus();
     calculateNeighbors();
 }
 function calculateNeighbors() {
@@ -131,12 +130,21 @@ function formCell(cell, row, column) {
     cell.y = row * cellSize;
     return cell;
 }
+// function createCell(cell) {
+//     let rect = new Graphics();
+//     rect.beginFill(cell.status ? 0x000000 : 0xffffff);
+//     rect.drawRect(cell.x, cell.y, cellSize, cellSize);
+//     rect.endFill();
+//
+//     cell.graphics = rect;
+//     return cell;
+// }
 function createCell(cell) {
-    var rect = new Graphics();
-    rect.beginFill(cell.status ? 0x000000 : 0xffffff);
-    rect.drawRect(cell.x, cell.y, cellSize, cellSize);
-    rect.endFill();
-    cell.graphics = rect;
+    var dotSprite = new Sprite(resources["images/dot.png"].texture);
+    dotSprite.scale.set(cellSize, cellSize);
+    dotSprite.position.set(cell.x, cell.y);
+    dotSprite.visible = cell.status;
+    cell.graphics = dotSprite;
     return cell;
 }
 function formCellsSequense() {
@@ -145,9 +153,14 @@ function formCellsSequense() {
         createCell(cellObject);
     });
 }
-function drawObjects() {
+function initializeGraphic() {
     forEachInMatrix(stableCellsMatrix, function (cellObject) {
         sim.addChild(cellObject.graphics);
+    });
+}
+function changeVisibleStatus() {
+    forEachInMatrix(stableCellsMatrix, function (cellObject) {
+        cellObject.graphics.visible = cellObject.status;
     });
 }
 function forEachInMatrix(matrix, callback) {
