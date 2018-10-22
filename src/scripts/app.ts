@@ -1,5 +1,6 @@
 //Aliases
-import forEachInMatrix from './game';
+import forEachInMatrix from './util';
+
 let Application = PIXI.Application,
     Container = PIXI.Container,
     resources = PIXI.loader.resources,
@@ -15,12 +16,12 @@ const resolution = ~~(borderSize / cellSize);
 const vectors = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
 let stableCellsMatrix = new Array(resolution);
 let futureCellsMatrix = new Array(resolution);
-let state, sim;
+let state: any, sim: any;
 
 let app = new Application({
         width: borderSize,
         height: borderSize + 50,
-        antialias: true,
+        antialias: false,
         backgroundColor: 0xFFFFFF,
         transparent: false,
         resolution: 1
@@ -28,12 +29,11 @@ let app = new Application({
 );
 
 PIXI.loader
-    .add("images/dot.png")
+    .add("assets/gfx/images/dot.png")
     .load(setup);
 
 
-
-function setup() {
+function setup(): void {
     sim = new Container();
     document.getElementById("display").appendChild(app.view);
 
@@ -72,19 +72,19 @@ function setup() {
     app.ticker.add(delta => actionLoop(delta));
 }
 
-function actionLoop(delta) {
+function actionLoop(delta: any) {
     state(delta);
 }
 
-function onButtonDown() {
+function onButtonDown(): void {
     state = state === simulate ? stopSim : simulate;
 }
 
-function stopSim(delta) {
+function stopSim(delta: any) {
 }
 
-function simulate(delta) {
-    forEachInMatrix(stableCellsMatrix, (stableCellObject, row, column) => {
+function simulate(delta: any) {
+    forEachInMatrix(stableCellsMatrix, (stableCellObject: any, row: number, column: number) => {
         let futureCellObject = stableCellObject;
         if (futureCellObject.status) {
             //If it's alive
@@ -107,13 +107,13 @@ function simulate(delta) {
 }
 
 
-function calculateNeighbors() {
-    forEachInMatrix(stableCellsMatrix, (cellObject, row, column) => {
+function calculateNeighbors(): void {
+    forEachInMatrix(stableCellsMatrix, (cellObject: any, row: number, column: number) => {
         cellObject.neighbors = checkCell(stableCellsMatrix, row, column);
     });
 }
 
-function checkCell(array, x, y) {
+function checkCell(array: any[], x: number, y: number) {
     let count = 0;
     vectors.forEach(vector => {
         const checkPosX = x + vector[0];
@@ -129,35 +129,34 @@ function checkCell(array, x, y) {
     return count;
 }
 
-function checkCell2(array, x, y) {
-    if (y + 1 < resolution) {
-        // exchangeData(array[x][y], array[x + 1][y + i - 1]);
-        if (array[x][y].status) array[x][y + 1].neighbors++;
-        if (array[x][y + 1].status) array[x][y].neighbors++;
-    }
-    for (let i = 0; i < 3; i++) {
-        if (x + 1 < resolution && y + i - 1 < resolution && y + i - 1 >= 0) {
-            // exchangeData(array[x][y], array[x + 1][y + i - 1]);
-            if (array[x][y].status) array[x + 1][y + i - 1].neighbors++;
-            if (array[x + 1][y + i - 1].status) array[x][y].neighbors++;
-        }
-    }
+// function checkCell2(array, x, y) {
+//     if (y + 1 < resolution) {
+//         // exchangeData(array[x][y], array[x + 1][y + i - 1]);
+//         if (array[x][y].status) array[x][y + 1].neighbors++;
+//         if (array[x][y + 1].status) array[x][y].neighbors++;
+//     }
+//     for (let i = 0; i < 3; i++) {
+//         if (x + 1 < resolution && y + i - 1 < resolution && y + i - 1 >= 0) {
+//             // exchangeData(array[x][y], array[x + 1][y + i - 1]);
+//             if (array[x][y].status) array[x + 1][y + i - 1].neighbors++;
+//             if (array[x + 1][y + i - 1].status) array[x][y].neighbors++;
+//         }
+//     }
+// }
+//
+// function exchangeData(obj, obj1) {
+//     if (obj.status) obj1.neighbors++;
+//     if (obj1.status) obj.neighbors++;
+// }
 
-}
-
-function exchangeData(obj, obj1) {
-    if (obj.status) obj1.neighbors++;
-    if (obj1.status) obj.neighbors++;
-}
-
-function formCell(cell, row, column) {
+function formCell(cell: any, row: number, column: number) {
     cell.x = column * cellSize;
     cell.y = row * cellSize;
     return cell;
 }
 
-function createCell(cell) {
-    const dotSprite = new Sprite(resources["images/dot.png"].texture);
+function createCell(cell: any) {
+    const dotSprite = new Sprite(resources["assets/gfx/images/dot.png"].texture);
     dotSprite.scale.set(cellSize, cellSize);
     dotSprite.position.set(cell.x, cell.y);
     dotSprite.visible = cell.status;
@@ -165,32 +164,29 @@ function createCell(cell) {
     return cell;
 }
 
-function formCellsSequense() {
-    forEachInMatrix(stableCellsMatrix, (cellObject, row, column) => {
+function formCellsSequense(): void {
+    forEachInMatrix(stableCellsMatrix, (cellObject: any, row: number, column: number) => {
         formCell(cellObject, row, column);
         createCell(cellObject);
     })
 }
 
-function initializeGraphic() {
-    forEachInMatrix(stableCellsMatrix, (cellObject) => {
+function initializeGraphic(): void {
+    forEachInMatrix(stableCellsMatrix, (cellObject: any) => {
         sim.addChild(cellObject.graphics);
     });
 }
 
-function changeVisibleStatus() {
-    forEachInMatrix(stableCellsMatrix, (cellObject) => {
+function changeVisibleStatus(): void {
+    forEachInMatrix(stableCellsMatrix, (cellObject: any) => {
         cellObject.graphics.visible = cellObject.status;
     })
 }
-//
-// function forEachInMatrix(matrix, callback) {
-//     matrix.forEach((matrixArray, row) => {
-//         matrixArray.forEach((matrixArrayObject, column) => {
+
+// function forEachInMatrix(matrix: any[], callback: any): any {
+//     matrix.forEach((matrixArray: any[], row: number) => {
+//         matrixArray.forEach((matrixArrayObject: any, column: number) => {
 //             callback(matrixArrayObject, row, column);
 //         });
 //     });
 // }
-
-
-

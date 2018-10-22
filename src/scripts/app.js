@@ -1,7 +1,7 @@
 "use strict";
 exports.__esModule = true;
 //Aliases
-var game_1 = require("./game");
+var game_1 = require("./util");
 var Application = PIXI.Application, Container = PIXI.Container, resources = PIXI.loader.resources, TextureCache = PIXI.utils.TextureCache, Sprite = PIXI.Sprite, Graphics = PIXI.Graphics, Rectangle = PIXI.Rectangle;
 var cellSize = 4;
 var borderSize = 512;

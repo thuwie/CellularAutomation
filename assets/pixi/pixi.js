@@ -5908,7 +5908,7 @@ var Resource = function () {
         }
 
         // let the browser determine the full href for the url of this resource and then
-        // parse with the node url lib, we can't use the properties of the anchor element
+        // parse with the node url assets, we can't use the properties of the anchor element
         // because they don't work in IE9 :(
         tempAnchor.href = url;
         url = (0, _parseUri2.default)(tempAnchor.href, { strictMode: true });
@@ -28633,7 +28633,7 @@ function determineCrossOrigin(url) {
     }
 
     // let the browser determine the full href for the url of this resource and then
-    // parse with the node url lib, we can't use the properties of the anchor element
+    // parse with the node url assets, we can't use the properties of the anchor element
     // because they don't work in IE9 :(
     tempAnchor.href = url;
     url = _url3.default.parse(tempAnchor.href);
