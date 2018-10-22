@@ -1,0 +1,11 @@
+{
+  "appSettings": {
+    "appWidth": 500,
+    "appHeight": 500,
+    "simBorderSize": 256
+  },
+  "simSettings": {
+    "cellSize": 2,
+    "speedCap": 2
+  }
+}

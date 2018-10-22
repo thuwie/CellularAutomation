@@ -1,26 +1,26 @@
-//Aliases
 import forEachInMatrix from './util';
+import gConfig from './configReader';
 
+//Aliases
 let Application = PIXI.Application,
     Container = PIXI.Container,
     resources = PIXI.loader.resources,
-    TextureCache = PIXI.utils.TextureCache,
     Sprite = PIXI.Sprite,
-    Graphics = PIXI.Graphics,
-    Rectangle = PIXI.Rectangle;
+    Graphics = PIXI.Graphics;
 
 
-const cellSize = 4;
-const borderSize = 512;
-const resolution = ~~(borderSize / cellSize);
+// const cellSize = 2;
+// const borderSize = 256;
+// const resolution = ~~(borderSize / cellSize);
+// const cap = 2;
 const vectors = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
-let stableCellsMatrix = new Array(resolution);
-let futureCellsMatrix = new Array(resolution);
-let state: any, sim: any;
+let stableCellsMatrix = new Array(gConfig.simSettings.resolution);
+let futureCellsMatrix = new Array(gConfig.simSettings.resolution);
+let state: any, sim: any, counter: number = 0;
 
 let app = new Application({
-        width: borderSize,
-        height: borderSize + 50,
+        width: gConfig.appSettings.width,
+        height: gConfig.appSettings.height,
         antialias: false,
         backgroundColor: 0xFFFFFF,
         transparent: false,
@@ -28,36 +28,36 @@ let app = new Application({
     }
 );
 
+
 PIXI.loader
     .add("assets/gfx/images/dot.png")
     .load(setup);
 
-
 function setup(): void {
     sim = new Container();
-    document.getElementById("display").appendChild(app.view);
 
+    document.getElementById("display").appendChild(app.view);
     let button = new Graphics();
     button.beginFill(0xFF0000);
-    button.drawRect(0, 0, borderSize, 50);
+    button.drawRect(0, 0, 50, 50);
     button.endFill();
     button.buttonMode = true;
     button.x = 0;
     button.y = 0;
     button.interactive = true;
     button.buttonMode = true;
+
     button
         .on('pointerdown', onButtonDown);
 
     sim.position.set(0, 50);
-
     app.stage.addChild(button);
-    app.stage.addChild(sim);
 
-    for (let i = 0; i < borderSize / cellSize; i++) {
+    app.stage.addChild(sim);
+    for (let i = 0; i < gConfig.simSettings.resolution; i++) {
         stableCellsMatrix[i] = [];
         futureCellsMatrix[i] = [];
-        for (let j = 0; j < borderSize / cellSize; j++) {
+        for (let j = 0; j < gConfig.simSettings.resolution; j++) {
             stableCellsMatrix[i][j] = { status: (Math.random() >= 0.5), neighbors: 0 };
             futureCellsMatrix[i][j] = { neighbors: 0 };
         }
@@ -65,15 +65,18 @@ function setup(): void {
 
     formCellsSequense();
     initializeGraphic();
-    calculateNeighbors();
 
+    calculateNeighbors();
     state = stopSim;
-    app.ticker.speed = 0.1;
-    app.ticker.add(delta => actionLoop(delta));
+    app.ticker.add((delta: any) => actionLoop(delta));
 }
 
 function actionLoop(delta: any) {
-    state(delta);
+    counter++;
+    if (counter === gConfig.simSettings.speedCap){
+        counter = 0;
+        state(delta);
+    }
 }
 
 function onButtonDown(): void {
@@ -120,7 +123,7 @@ function checkCell(array: any[], x: number, y: number) {
         const checkPosY = y + vector[1];
 
         if ((checkPosX >= 0 && checkPosY >= 0)
-            && (checkPosX < resolution && checkPosY < resolution)
+            && (checkPosX < gConfig.simSettings.resolution && checkPosY < gConfig.simSettings.resolution)
             && array[checkPosX][checkPosY].status
         ) {
             count++;
@@ -150,14 +153,14 @@ function checkCell(array: any[], x: number, y: number) {
 // }
 
 function formCell(cell: any, row: number, column: number) {
-    cell.x = column * cellSize;
-    cell.y = row * cellSize;
+    cell.x = column * gConfig.simSettings.cellSize;
+    cell.y = row * gConfig.simSettings.cellSize;
     return cell;
 }
 
 function createCell(cell: any) {
     const dotSprite = new Sprite(resources["assets/gfx/images/dot.png"].texture);
-    dotSprite.scale.set(cellSize, cellSize);
+    dotSprite.scale.set(gConfig.simSettings.cellSize, gConfig.simSettings.cellSize);
     dotSprite.position.set(cell.x, cell.y);
     dotSprite.visible = cell.status;
     cell.graphics = dotSprite;
@@ -182,11 +185,3 @@ function changeVisibleStatus(): void {
         cellObject.graphics.visible = cellObject.status;
     })
 }
-
-// function forEachInMatrix(matrix: any[], callback: any): any {
-//     matrix.forEach((matrixArray: any[], row: number) => {
-//         matrixArray.forEach((matrixArrayObject: any, column: number) => {
-//             callback(matrixArrayObject, row, column);
-//         });
-//     });
-// }
